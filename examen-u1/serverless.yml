@@ -1,0 +1,55 @@
+org: naty317
+service: online-library-crud
+frameworkVersion: "4"
+
+provider:
+  name: aws
+  runtime: nodejs20.x
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - dynamodb:*
+      Resource: arn:aws:dynamodb:us-east-1:954976286100:table/BooksTable
+
+functions:
+  createBook:
+    handler: src/createBook.handler
+    events:
+      - httpApi:
+          path: /books
+          method: post
+
+  getBook:
+    handler: src/getBook.handler
+    events:
+      - httpApi:
+          path: /books/{BookID}
+          method: get
+
+  updateBook:
+    handler: src/updateBook.handler
+    events:
+      - httpApi:
+          path: /books/{BookID}
+          method: put
+
+  deleteBook:
+    handler: src/deleteBook.handler
+    events:
+      - httpApi:
+          path: /books/{BookID}
+          method: delete
+
+resources:
+  Resources:
+    BooksTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: "BooksTable"
+        BillingMode: PAY_PER_REQUEST
+        AttributeDefinitions:
+          - AttributeName: BookID
+            AttributeType: S
+        KeySchema:
+          - AttributeName: BookID
+            KeyType: HASH
